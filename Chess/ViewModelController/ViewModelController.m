@@ -58,6 +58,7 @@
                 [self.displayCoordinateY setValue: [NSNumber numberWithFloat:coordinateY] forKey:[NSString stringWithFormat:@"%ld", (long)rank]];
                 rank = rank - 1;
             }
+            self.availableMoves = [NSMutableSet set];
             self.pieceGrid = [NSMutableArray array];
             self.viewController = viewController;
         }
@@ -85,14 +86,12 @@
 /*
  Creates the board design
  */
-- (UIView*)createBoard
+- (void)createBoard
 {
-    UIView *chessBoard = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.viewSize.width, self.viewSize.height)];
 
-  
     // Creates the board
     CGFloat squarePositionX = 0;
-    CGFloat squarePositionY = chessBoard.frame.size.height / 10 * 3;
+    CGFloat squarePositionY = self.viewSize.height / 10 * 3;
     
     Boolean isDarkSquare = NO;
     for(int row = 0; row < 8; row++) {
@@ -108,7 +107,7 @@
             }
             
             isDarkSquare = !isDarkSquare;
-            [chessBoard addSubview:square];
+            [self.viewController.view addSubview:square];
             
         }
         isDarkSquare = !isDarkSquare;
@@ -116,7 +115,7 @@
         squarePositionY += self.squareLength;
     }
     
-    return chessBoard;
+    
 }
 
 /*
@@ -281,11 +280,15 @@
  */
 - (void)clearAvailableMoves
 {
+    
+
     for(UIButton *move in self.availableMoves){
+        
         [move removeFromSuperview];
     }
     [self.availableMoves removeAllObjects];
     NSLog(@"available moves cleared");
+    NSLog(@"%@", self.availableMoves);
 }
 
 @end

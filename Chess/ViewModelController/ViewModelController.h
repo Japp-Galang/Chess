@@ -13,7 +13,7 @@
 
 - (instancetype)initWithViewSize:(CGSize)size viewController:(ViewController*)viewController;
 
-- (UIView*)createBoard;
+- (void)createBoard;
 - (NSMutableArray*)prefillBoardPieces:(NSMutableArray*)pieceGrid;
 - (UIView*)addChessIconToSquare:(NSString*)imageName file:(NSString*)file rank:(NSString*)rank pieceIdentifier:(NSInteger)pieceIdentifier;
 - (UIView*)checkGridToDisplayPiecesWithpieceGrid:(NSMutableArray*)pieceGrid;

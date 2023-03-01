@@ -37,8 +37,8 @@
     
     
     // Creates the board
-    UIView *chessBoard = [self.viewModelController createBoard];
-    [self.view addSubview:chessBoard];
+    [self.viewModelController createBoard];
+
     
     // Puts pieces on the board
     UIView* pieceOverlay = [self.viewModelController checkGridToDisplayPiecesWithpieceGrid:self.pieceGrid];
