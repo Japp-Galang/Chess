@@ -34,15 +34,11 @@
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(clearAvailableMoves)];
     [self.view addGestureRecognizer:tapGesture];
 
-    
-    
     // Creates the board
     [self.viewModelController createBoard];
 
-    
     // Puts pieces on the board
-    UIView* pieceOverlay = [self.viewModelController checkGridToDisplayPiecesWithpieceGrid:self.pieceGrid];
-    [self.view addSubview:pieceOverlay];
+    [self.viewModelController checkGridToDisplayPiecesWithpieceGrid];
 }
 
 - (void)clearAvailableMoves

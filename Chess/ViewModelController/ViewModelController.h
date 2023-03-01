@@ -16,7 +16,7 @@
 - (void)createBoard;
 - (NSMutableArray*)prefillBoardPieces:(NSMutableArray*)pieceGrid;
 - (UIView*)addChessIconToSquare:(NSString*)imageName file:(NSString*)file rank:(NSString*)rank pieceIdentifier:(NSInteger)pieceIdentifier;
-- (UIView*)checkGridToDisplayPiecesWithpieceGrid:(NSMutableArray*)pieceGrid;
+- (void)checkGridToDisplayPiecesWithpieceGrid;
 
 - (void)clearAvailableMoves;
 

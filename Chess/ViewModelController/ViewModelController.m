@@ -121,27 +121,22 @@
 /*
  Scans piecegrid to know what pieces to display
  */
-- (UIView*)checkGridToDisplayPiecesWithpieceGrid:(NSMutableArray*)pieceGrid
+- (void)checkGridToDisplayPiecesWithpieceGrid
 {
-    UIView* pieceOverlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.viewSize.width, self.viewSize.height)];
-    
     for(int rank = 1; rank <= 8; rank++){
         for(char file = 'a'; file <= 'h'; file++){
             NSInteger computerFile = [self.fileToComputerFile[[NSString stringWithFormat:@"%c", file]] intValue];
             NSInteger computerRank = abs(8 - rank);
-            if([pieceGrid[computerRank][computerFile]  isEqual: @1]){
+            if([self.pieceGrid[computerRank][computerFile]  isEqual: @1]){
                 UIView* whiteKing = [self addChessIconToSquare:@"WhiteKing" file:[NSString stringWithFormat:@"%c", file] rank:[NSString stringWithFormat:@"%d", rank] pieceIdentifier:1];
-                [pieceOverlay addSubview:whiteKing];
+                [self.viewController.view addSubview:whiteKing];
             }
-            if([pieceGrid[computerRank][computerFile]  isEqual: @-1]){
+            if([self.pieceGrid[computerRank][computerFile]  isEqual: @-1]){
                 UIView* blackKing = [self addChessIconToSquare:@"BlackKing" file:[NSString stringWithFormat:@"%c", file] rank:[NSString stringWithFormat:@"%d", rank] pieceIdentifier:1];
-                [pieceOverlay addSubview:blackKing];
+                [self.viewController.view addSubview:blackKing];
             }
         }
     }
-    
-    return pieceOverlay;
-    
 }
 
 
