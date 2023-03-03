@@ -11,9 +11,6 @@
 @interface ViewController ()
 
 
-@property (strong, nonatomic) NSDictionary* fileToComputerFile;
-
-
 @end
 
 
@@ -25,10 +22,9 @@
     [super viewDidLoad];
     
     self.viewModelController = [[ViewModelController alloc] initWithViewSize:self.view.frame.size viewController:self];
-    self.fileToComputerFile = @{@"a": @0, @"b": @1, @"c": @2, @"d": @3, @"e": @4, @"f": @5, @"g": @6, @"h": @7};
   
-    self.pieceGrid = [NSMutableArray array];
-    self.pieceGrid = [self.viewModelController prefillBoardPieces:self.pieceGrid];
+    
+    [self.viewModelController prefillBoardPieces];
     
     self.view.backgroundColor = [UIColor darkGrayColor];
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(clearAvailableMoves)];
@@ -37,7 +33,7 @@
     // Creates the board
     [self.viewModelController createBoard];
 
-    // Puts pieces on the board
+    // Puts initial pieces on the board
     [self.viewModelController checkGridToDisplayPiecesWithpieceGrid];
 }
 

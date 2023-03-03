@@ -24,6 +24,7 @@
 @property (nonatomic) CGSize viewSize;
 
 @property (strong, nonatomic) NSMutableSet* availableMoves;
+@property (strong, nonatomic) NSMutableSet* currentPiecesOnTheBoard;
 
 @end
 
@@ -59,27 +60,27 @@
                 rank = rank - 1;
             }
             self.availableMoves = [NSMutableSet set];
+            self.currentPiecesOnTheBoard = [NSMutableSet set];
             self.pieceGrid = [NSMutableArray array];
             self.viewController = viewController;
         }
         return self;
 }
 
-- (NSMutableArray*)prefillBoardPieces:(NSMutableArray*)pieceGrid
+- (void)prefillBoardPieces
 {
-    pieceGrid = [NSMutableArray array];
+    self.pieceGrid = [NSMutableArray array];
                                                        //  a   b   c   d   e   f   g   h
-    [pieceGrid addObject:[NSMutableArray arrayWithObjects:@0, @0, @0, @0, @0, @0, @0, @0, nil]];// 8
-    [pieceGrid addObject:[NSMutableArray arrayWithObjects:@0, @0, @0, @0, @0, @0, @0, @0, nil]];
-    [pieceGrid addObject:[NSMutableArray arrayWithObjects:@0, @0, @0, @0, @0, @0, @0, @0, nil]];
-    [pieceGrid addObject:[NSMutableArray arrayWithObjects:@1, @0, @0, @0, @0, @0, @0, @1, nil]];
-    [pieceGrid addObject:[NSMutableArray arrayWithObjects:@0, @0, @0, @0, @0, @0, @0, @0, nil]];
-    [pieceGrid addObject:[NSMutableArray arrayWithObjects:@0, @0, @0, @0, @0, @0, @0, @0, nil]];
-    [pieceGrid addObject:[NSMutableArray arrayWithObjects:@0, @0, @0, @0, @0, @0, @0, @0, nil]];
-    [pieceGrid addObject:[NSMutableArray arrayWithObjects:@1, @0, @0, @0, @0, @0, @0, @1, nil]]; // 1
+    [self.pieceGrid addObject:[NSMutableArray arrayWithObjects:@0, @0, @0, @0, @0, @0, @1, @0, nil]];// 8
+    [self.pieceGrid addObject:[NSMutableArray arrayWithObjects:@0, @0, @0, @0, @0, @0, @0, @0, nil]];
+    [self.pieceGrid addObject:[NSMutableArray arrayWithObjects:@0, @0, @-1, @0, @0, @0, @0, @0, nil]];
+    [self.pieceGrid addObject:[NSMutableArray arrayWithObjects:@0, @0, @0, @0, @0, @0, @0, @1, nil]];
+    [self.pieceGrid addObject:[NSMutableArray arrayWithObjects:@0, @0, @0, @0, @1, @0, @0, @0, nil]];
+    [self.pieceGrid addObject:[NSMutableArray arrayWithObjects:@0, @0, @0, @0, @0, @0, @0, @0, nil]];
+    [self.pieceGrid addObject:[NSMutableArray arrayWithObjects:@0, @0, @0, @0, @0, @0, @0, @0, nil]];
+    [self.pieceGrid addObject:[NSMutableArray arrayWithObjects:@0, @1, @0, @0, @0, @0, @0, @1, nil]]; // 1
     
-    self.pieceGrid = pieceGrid;
-    return pieceGrid;
+   
 }
 
 
@@ -130,10 +131,12 @@
             if([self.pieceGrid[computerRank][computerFile]  isEqual: @1]){
                 UIView* whiteKing = [self addChessIconToSquare:@"WhiteKing" file:[NSString stringWithFormat:@"%c", file] rank:[NSString stringWithFormat:@"%d", rank] pieceIdentifier:1];
                 [self.viewController.view addSubview:whiteKing];
+                [self.currentPiecesOnTheBoard addObject:whiteKing];
             }
             if([self.pieceGrid[computerRank][computerFile]  isEqual: @-1]){
                 UIView* blackKing = [self addChessIconToSquare:@"BlackKing" file:[NSString stringWithFormat:@"%c", file] rank:[NSString stringWithFormat:@"%d", rank] pieceIdentifier:1];
                 [self.viewController.view addSubview:blackKing];
+                [self.currentPiecesOnTheBoard addObject:blackKing];
             }
         }
     }
@@ -165,15 +168,14 @@
 - (void)pieceTapped:(UIButton *)sender
 {
     NSString *title = [sender titleForState:UIControlStateNormal];
-    //[self clearAvailableMoves];
-    
+    [self clearAvailableMoves];
+  
     // Show available squares based on piece type and position of the board
     if(sender.tag == 1) {
        
        [self kingMoves:[title characterAtIndex:0] rank:[title substringWithRange:NSMakeRange(1, 1)]];
     }
     
-    // Make those squares available to click
     
 }
 
@@ -185,60 +187,63 @@
     
     // checks if there are positions available on its rank
     if(file == 'a') {
-        [self checkIfSquareIsAvailable:file + 1 rank:rank pieceIdentifier:1];
+        [self checkIfSquareIsAvailable:file + 1 rank:rank currentFile:file currentRank:rank];
         
         if([rank  isEqual: @"1"]){
-            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file + 1 rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] pieceIdentifier:1];
+            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file + 1 rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] currentFile:file currentRank:rank];
         } else if([rank  isEqual: @"8"]){
-            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file + 1 rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] pieceIdentifier:1];
+            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file + 1 rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] currentFile:file currentRank:rank];
         } else {
-            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file + 1 rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file + 1 rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] pieceIdentifier:1];
+            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file + 1 rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file + 1 rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] currentFile:file currentRank:rank];
         }
         
     } else if (file == 'h') {
-        [self checkIfSquareIsAvailable:file - 1 rank:rank pieceIdentifier:1];
+        [self checkIfSquareIsAvailable:file - 1 rank:rank currentFile:file currentRank:rank];
         
         if([rank  isEqual: @"1"]){
-            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file - 1 rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] pieceIdentifier:1];
+            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file - 1 rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] currentFile:file currentRank:rank];
         } else if([rank  isEqual: @"8"]){
-            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file - 1 rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] pieceIdentifier:1];
+            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file - 1 rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] currentFile:file currentRank:rank];
         } else {
-            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file - 1 rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file - 1 rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] pieceIdentifier:1];
+            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file - 1 rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file - 1 rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] currentFile:file currentRank:rank];
         }
         
     } else {
-        [self checkIfSquareIsAvailable:file - 1 rank:rank pieceIdentifier:1];
-        [self checkIfSquareIsAvailable:file + 1 rank:rank pieceIdentifier:1];
+        [self checkIfSquareIsAvailable:file - 1 rank:rank currentFile:file currentRank:rank];
+        [self checkIfSquareIsAvailable:file + 1 rank:rank currentFile:file currentRank:rank];
         
         if([rank  isEqual: @"1"]){
-            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file + 1 rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] pieceIdentifier:1];
+            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file + 1 rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file - 1 rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] currentFile:file currentRank:rank];
         } else if([rank  isEqual: @"8"]){
-            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file + 1 rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] pieceIdentifier:1];
+            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file + 1 rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file - 1 rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] currentFile:file currentRank:rank];
+            
         } else {
-            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file + 1 rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file + 1 rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file - 1 rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] pieceIdentifier:1];
-            [self checkIfSquareIsAvailable:file - 1 rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] pieceIdentifier:1];
+            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file + 1 rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file + 1 rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file - 1 rank:[NSString stringWithFormat:@"%ld", rankInteger - 1] currentFile:file currentRank:rank];
+            [self checkIfSquareIsAvailable:file - 1 rank:[NSString stringWithFormat:@"%ld", rankInteger + 1] currentFile:file currentRank:rank];
         }
     }
 }
 
 
-- (void)checkIfSquareIsAvailable:(char)file rank:(NSString*)rank pieceIdentifier:(NSInteger)pieceIdentifier
+- (void)checkIfSquareIsAvailable:(char)file rank:(NSString*)rank currentFile:(char)currentFile currentRank:(NSString*)currentRank
 {
     NSInteger computerRank = abs(8 - [rank intValue]);
     
@@ -249,25 +254,45 @@
     // adds button if move is available
     if([self.pieceGrid[computerRank][computerFile]  isEqual: @0]){
         
-        NSLog(@"Is available");
         UIButton *availableMove = [UIButton buttonWithType:UIButtonTypeSystem];
         
         CGFloat coordinateX = [[self.displayCoordinateX objectForKey:[NSString stringWithFormat:@"%c", file]] floatValue];
         CGFloat coordinateY = [[self.displayCoordinateY objectForKey:rank] floatValue];
         availableMove.frame = CGRectMake(coordinateX,coordinateY, imageSize.width / 22, imageSize.height / 22);
         availableMove.backgroundColor = [UIColor redColor];
+        
+        NSString* moveFromAndTo = [[NSString stringWithFormat:@"%c", currentFile] stringByAppendingString:[currentRank stringByAppendingString:[[NSString stringWithFormat:@"%c", file] stringByAppendingString:rank]]];
+        [availableMove setTitle:moveFromAndTo forState:UIControlStateNormal];
+        [availableMove setTitleColor:[UIColor clearColor] forState:UIControlStateNormal];
+        [availableMove addTarget:self action:@selector(movePiece:) forControlEvents:UIControlEventTouchUpInside];
         [self.availableMoves addObject:availableMove];
-        
         [self.viewController.view addSubview:availableMove];
-        
     }
     
 }
 
 
-- (void)movePiece:(char)fileOfMovingPiece rankOfMovingPiece:(NSString*)rankOfMovingPiece newFile:(char)newFile newRank:(NSString*)newRank
+- (void)movePiece:(UIButton *)sender
 {
+    NSString *moveFromAndTo = [sender titleForState:UIControlStateNormal];
     
+    NSString *currentfile = [moveFromAndTo substringWithRange:NSMakeRange(0, 1)];
+    NSString *currentRank = [moveFromAndTo substringWithRange:NSMakeRange(1, 1)];
+    NSString *newFile = [moveFromAndTo substringWithRange:NSMakeRange(2, 1)];
+    NSString *newRank =[moveFromAndTo substringWithRange:NSMakeRange(3, 1)];
+    
+    NSInteger computerCurrentFile = [self.fileToComputerFile[[NSString stringWithFormat:@"%@", currentfile]] intValue];
+    NSInteger computerCurrentRank = abs(8 - [currentRank intValue]);
+    NSInteger computerNewFile = [self.fileToComputerFile[[NSString stringWithFormat:@"%@", newFile]] intValue];
+    NSInteger computerNewRank = abs(8 - [newRank intValue]);
+    
+    NSNumber *pieceIdentifier = self.pieceGrid[computerCurrentRank][computerCurrentFile];
+    
+    self.pieceGrid[computerCurrentRank][computerCurrentFile] = @0;
+    self.pieceGrid[computerNewRank][computerNewFile] = pieceIdentifier;
+    [self clearCurrentPieces];
+    [self clearAvailableMoves];
+    [self checkGridToDisplayPiecesWithpieceGrid];
 }
 
 /*
@@ -275,15 +300,19 @@
  */
 - (void)clearAvailableMoves
 {
-    
-
     for(UIButton *move in self.availableMoves){
         
         [move removeFromSuperview];
     }
     [self.availableMoves removeAllObjects];
-    NSLog(@"available moves cleared");
-    NSLog(@"%@", self.availableMoves);
+   
 }
 
+- (void)clearCurrentPieces
+{
+    for(UIView *view in self.currentPiecesOnTheBoard){
+        [view removeFromSuperview];
+    }
+    [self.currentPiecesOnTheBoard removeAllObjects];
+}
 @end
