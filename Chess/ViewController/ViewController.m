@@ -35,6 +35,7 @@
 
     // Puts initial pieces on the board
     [self.viewModelController checkGridToDisplayPiecesWithpieceGrid];
+    
 }
 
 - (void)clearAvailableMoves
